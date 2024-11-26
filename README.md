@@ -2,7 +2,7 @@
 v10.0 (DEV) || 2024.26.NOV
 --------
 
-Welcome back.  Latest version, nearly reaady for PRD.  Includes all recent updates, including but not limited to:
+Welcome back.  Latest version, nearly reaady for PRD.  2024 updates, including but not limited to:
 
 ∙Duplex Outputs
 
