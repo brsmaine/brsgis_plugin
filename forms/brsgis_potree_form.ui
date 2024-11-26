@@ -1,0 +1,468 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>PotreeDialog</class>
+ <widget class="QDialog" name="PotreeDialog">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>400</width>
+    <height>435</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Dialog</string>
+  </property>
+  <widget class="QDialogButtonBox" name="buttonBox">
+   <property name="geometry">
+    <rect>
+     <x>230</x>
+     <y>390</y>
+     <width>151</width>
+     <height>32</height>
+    </rect>
+   </property>
+   <property name="orientation">
+    <enum>Qt::Horizontal</enum>
+   </property>
+   <property name="standardButtons">
+    <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
+   </property>
+  </widget>
+  <widget class="QgsFileWidget" name="fileLAS">
+   <property name="geometry">
+    <rect>
+     <x>20</x>
+     <y>80</y>
+     <width>360</width>
+     <height>27</height>
+    </rect>
+   </property>
+   <property name="dialogTitle">
+    <string>Select PointCloud (.LAS)</string>
+   </property>
+   <property name="filter">
+    <string>*.las</string>
+   </property>
+  </widget>
+  <widget class="QLabel" name="lblLAS">
+   <property name="geometry">
+    <rect>
+     <x>20</x>
+     <y>65</y>
+     <width>201</width>
+     <height>16</height>
+    </rect>
+   </property>
+   <property name="font">
+    <font>
+     <weight>75</weight>
+     <bold>true</bold>
+    </font>
+   </property>
+   <property name="text">
+    <string>PointCloud (.LAS) - REQUIRED</string>
+   </property>
+  </widget>
+  <widget class="QgsFileWidget" name="filePLY">
+   <property name="geometry">
+    <rect>
+     <x>20</x>
+     <y>140</y>
+     <width>360</width>
+     <height>27</height>
+    </rect>
+   </property>
+   <property name="dialogTitle">
+    <string>Select 3D Mesh (.PLY)</string>
+   </property>
+   <property name="filter">
+    <string>*.ply</string>
+   </property>
+  </widget>
+  <widget class="QLabel" name="lblPLY">
+   <property name="geometry">
+    <rect>
+     <x>20</x>
+     <y>125</y>
+     <width>91</width>
+     <height>16</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>3D Mesh (.PLY)</string>
+   </property>
+  </widget>
+  <widget class="QgsFileWidget" name="fileOBJ">
+   <property name="geometry">
+    <rect>
+     <x>20</x>
+     <y>200</y>
+     <width>360</width>
+     <height>27</height>
+    </rect>
+   </property>
+   <property name="dialogTitle">
+    <string>Select 3D Model (.OBJ)</string>
+   </property>
+   <property name="filter">
+    <string>*.obj</string>
+   </property>
+  </widget>
+  <widget class="QLabel" name="lblOBJ">
+   <property name="geometry">
+    <rect>
+     <x>20</x>
+     <y>185</y>
+     <width>91</width>
+     <height>16</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>3D Model (.OBJ)</string>
+   </property>
+  </widget>
+  <widget class="QComboBox" name="includeContours">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>370</y>
+     <width>71</width>
+     <height>22</height>
+    </rect>
+   </property>
+   <item>
+    <property name="text">
+     <string>NO</string>
+    </property>
+   </item>
+   <item>
+    <property name="text">
+     <string>YES</string>
+    </property>
+   </item>
+  </widget>
+  <widget class="QLabel" name="lblContours">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>350</y>
+     <width>111</width>
+     <height>16</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Include 3D Contours?</string>
+   </property>
+  </widget>
+  <widget class="QLineEdit" name="pageName">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>35</y>
+     <width>171</width>
+     <height>20</height>
+    </rect>
+   </property>
+  </widget>
+  <widget class="QLabel" name="lblPageName">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>15</y>
+     <width>101</width>
+     <height>16</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Custom Page Name</string>
+   </property>
+  </widget>
+  <widget class="QRadioButton" name="btnUseJobNo">
+   <property name="geometry">
+    <rect>
+     <x>200</x>
+     <y>36</y>
+     <width>171</width>
+     <height>17</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Use JobNo as Page Name</string>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+  </widget>
+  <widget class="QLineEdit" name="objX">
+   <property name="enabled">
+    <bool>true</bool>
+   </property>
+   <property name="geometry">
+    <rect>
+     <x>20</x>
+     <y>250</y>
+     <width>100</width>
+     <height>20</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string/>
+   </property>
+  </widget>
+  <widget class="QLabel" name="lblObjX">
+   <property name="geometry">
+    <rect>
+     <x>20</x>
+     <y>230</y>
+     <width>101</width>
+     <height>16</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>.OBJ (X)</string>
+   </property>
+  </widget>
+  <widget class="QLabel" name="lblObjY">
+   <property name="geometry">
+    <rect>
+     <x>135</x>
+     <y>230</y>
+     <width>101</width>
+     <height>16</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>.OBJ (Y)</string>
+   </property>
+  </widget>
+  <widget class="QLineEdit" name="objY">
+   <property name="enabled">
+    <bool>true</bool>
+   </property>
+   <property name="geometry">
+    <rect>
+     <x>135</x>
+     <y>250</y>
+     <width>100</width>
+     <height>20</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string/>
+   </property>
+  </widget>
+  <widget class="QLabel" name="lblObjZ">
+   <property name="geometry">
+    <rect>
+     <x>250</x>
+     <y>230</y>
+     <width>101</width>
+     <height>16</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>.OBJ (Z)</string>
+   </property>
+  </widget>
+  <widget class="QLineEdit" name="objZ">
+   <property name="enabled">
+    <bool>true</bool>
+   </property>
+   <property name="geometry">
+    <rect>
+     <x>250</x>
+     <y>250</y>
+     <width>100</width>
+     <height>20</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string/>
+   </property>
+  </widget>
+  <widget class="QLabel" name="lblObjScale">
+   <property name="geometry">
+    <rect>
+     <x>20</x>
+     <y>280</y>
+     <width>101</width>
+     <height>16</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>.OBJ Scale</string>
+   </property>
+  </widget>
+  <widget class="QLineEdit" name="objScale">
+   <property name="enabled">
+    <bool>true</bool>
+   </property>
+   <property name="geometry">
+    <rect>
+     <x>20</x>
+     <y>300</y>
+     <width>101</width>
+     <height>20</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string/>
+   </property>
+  </widget>
+  <widget class="QLabel" name="lblObjScale_2">
+   <property name="geometry">
+    <rect>
+     <x>135</x>
+     <y>280</y>
+     <width>221</width>
+     <height>16</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>.OBJ Rotation (Math.PI / 2, Math.PI, 0), etc. </string>
+   </property>
+  </widget>
+  <widget class="QLineEdit" name="objRotation">
+   <property name="enabled">
+    <bool>true</bool>
+   </property>
+   <property name="geometry">
+    <rect>
+     <x>135</x>
+     <y>300</y>
+     <width>215</width>
+     <height>20</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string/>
+   </property>
+  </widget>
+  <widget class="QFrame" name="frame">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>180</y>
+     <width>381</width>
+     <height>161</height>
+    </rect>
+   </property>
+   <property name="frameShape">
+    <enum>QFrame::Box</enum>
+   </property>
+   <property name="frameShadow">
+    <enum>QFrame::Raised</enum>
+   </property>
+  </widget>
+  <widget class="QFrame" name="frame_2">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>60</y>
+     <width>381</width>
+     <height>51</height>
+    </rect>
+   </property>
+   <property name="frameShape">
+    <enum>QFrame::Box</enum>
+   </property>
+   <property name="frameShadow">
+    <enum>QFrame::Raised</enum>
+   </property>
+   <property name="lineWidth">
+    <number>1</number>
+   </property>
+  </widget>
+  <widget class="QFrame" name="frame_3">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>120</y>
+     <width>381</width>
+     <height>51</height>
+    </rect>
+   </property>
+   <property name="frameShape">
+    <enum>QFrame::Box</enum>
+   </property>
+   <property name="frameShadow">
+    <enum>QFrame::Raised</enum>
+   </property>
+  </widget>
+  <zorder>frame</zorder>
+  <zorder>frame_3</zorder>
+  <zorder>frame_2</zorder>
+  <zorder>buttonBox</zorder>
+  <zorder>fileLAS</zorder>
+  <zorder>lblLAS</zorder>
+  <zorder>filePLY</zorder>
+  <zorder>lblPLY</zorder>
+  <zorder>fileOBJ</zorder>
+  <zorder>lblOBJ</zorder>
+  <zorder>includeContours</zorder>
+  <zorder>lblContours</zorder>
+  <zorder>pageName</zorder>
+  <zorder>lblPageName</zorder>
+  <zorder>btnUseJobNo</zorder>
+  <zorder>objX</zorder>
+  <zorder>lblObjX</zorder>
+  <zorder>lblObjY</zorder>
+  <zorder>objY</zorder>
+  <zorder>lblObjZ</zorder>
+  <zorder>objZ</zorder>
+  <zorder>lblObjScale</zorder>
+  <zorder>objScale</zorder>
+  <zorder>lblObjScale_2</zorder>
+  <zorder>objRotation</zorder>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>QgsFileWidget</class>
+   <extends>QWidget</extends>
+   <header>qgsfilewidget.h</header>
+  </customwidget>
+ </customwidgets>
+ <tabstops>
+  <tabstop>pageName</tabstop>
+  <tabstop>includeContours</tabstop>
+ </tabstops>
+ <resources/>
+ <connections>
+  <connection>
+   <sender>buttonBox</sender>
+   <signal>accepted()</signal>
+   <receiver>PotreeDialog</receiver>
+   <slot>accept()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>248</x>
+     <y>254</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>157</x>
+     <y>274</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>buttonBox</sender>
+   <signal>rejected()</signal>
+   <receiver>PotreeDialog</receiver>
+   <slot>reject()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>316</x>
+     <y>260</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>286</x>
+     <y>274</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+</ui>
