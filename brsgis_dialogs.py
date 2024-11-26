@@ -3569,6 +3569,7 @@ class brsgis_printFolderLabel(object):
         try:
             ws['A1'] = folderName
             ws['A2'] = ''
+            ws['B1'] = folderType
             if str(folderName) != str(clientName):
                 ws['A2'] = clientName
                 if str(clientName) != str(primaryContact):
@@ -5275,8 +5276,6 @@ class brsgis_printMapView(object):
         jprn = 'brs_jobs_print.qml'
         astd = 'abutters_std.qml'
         aprn = 'abutters_print.qml'
-        pstd = 'parcels.qml'
-        pprn = 'parcels_print.qml'
 
         year = datetime.datetime.today().strftime('%Y')
         self.vl = QgsProject.instance().mapLayersByName('brs_jobs')[0]
@@ -5321,12 +5320,7 @@ class brsgis_printMapView(object):
 
         cfile = str(jipath) + "\\" + jobNo + "_MapView_" + datetime.datetime.today().strftime(
             '%Y.%m.%d') + ".pdf"
-
-        # enable parcels print style | filter: n/a
-        qmlPathP = self.resolve(pprn)
-        self.vl = QgsProject.instance().mapLayersByName('Parcels')[0]
-        self.vl.loadNamedStyle(qmlPathP)
-        
+     
         # enable abutters print style | filter: reffererj = job_no
         qmlPath = self.resolve(aprn)
         self.vl = QgsProject.instance().mapLayersByName('abutters')[0]
@@ -5343,26 +5337,14 @@ class brsgis_printMapView(object):
         QgsProject.instance().addMapLayer(self.clone_layer)
 
         self.ol = QgsProject.instance().mapLayersByName('output')[0]
-        self.ol.loadNamedStyle(qmlStdPath)
 
         self.vl.loadNamedStyle(qmlPrnPath)
         self.vl.setSubsetString('"job_no"=\'%s\'' % jobNo)
         currentScale = self.iface.mapCanvas().scale()
 
-        # prepare canvas
-        # self.iface.mapCanvas().zoomToSelected(self.vl)
-        # self.iface.mapCanvas().zoomScale(1000)
-        # self.vl.triggerRepaint()
-
-
         # generate output
         self.make_pdf(cfile, jobNo, folder_name, jobType, county, cfile)
 
-        # enable parcels standard style | filter: n/a
-        qmlPathPstd = self.resolve(pstd)
-        self.vl = QgsProject.instance().mapLayersByName('Parcels')[0]
-        self.vl.loadNamedStyle(qmlPathPstd)
-        
         # enable abutters standard style | filter: n/a
         qmlPath = self.resolve(astd)
         self.vl = QgsProject.instance().mapLayersByName('abutters')[0]
@@ -5393,7 +5375,6 @@ class brsgis_printMapView(object):
         self.vl.triggerRepaint()
         self.reset()
         resetLegend(self)
-
 
     def spin(self, seconds):
         import time
@@ -5738,7 +5719,7 @@ class brsgis_printSiteMap(object):
         self.toggleLayer('ng911rdss', 1)
 
         QgsProject.instance().layerTreeRoot().findGroup('IMAGERY').setItemVisibilityChecked(1)
-        QgsProject.instance().layerTreeRoot().findGroup('State Orthos').setItemVisibilityChecked(0)
+        QgsProject.instance().layerTreeRoot().findGroup('State Orthos').setItemVisibilityChecked(1)
 
         qmlPath = self.resolve(sMap)
 
@@ -5746,7 +5727,6 @@ class brsgis_printSiteMap(object):
 
         self.vl.loadNamedStyle(qmlPath)
         self.vl.triggerRepaint()
-
         self.make_jpg(dwgpath, jobNo)
 
         qmlPath = self.resolve(std)
@@ -5984,7 +5964,7 @@ class brsgis_search(object):
                     vLayer.setEditorWidgetSetup(fieldIndex, editor_widget_setup)
 
         elif vLayer.name() == 'Parcels':
-            cols = ('town','map_bk_lot','owner1','owner2','own_addr1', 'own_addr2', 'own_city', 'own_state', 'own_zip', 'rawdeeds', 'prop_loc','proplocnum','zipcode', 'source')
+            cols = ('town', 'county', 'map_bk_lot','locus_address', 'owner1','rawdeeds', 'proplocnum', 'prop_loc')
             columns = vLayer.fields()
             editor_widget_setup = QgsEditorWidgetSetup('Hidden', {})
 
@@ -5994,6 +5974,19 @@ class brsgis_search(object):
                 else:
                     fieldIndex = vLayer.fields().indexFromName(c.name())
                     vLayer.setEditorWidgetSetup(fieldIndex, editor_widget_setup)
+                    
+        elif vLayer.name() == 'parcels_aux':
+            cols = ('town', 'county', 'map_bk_lot','locus_address', 'owner1','rawdeeds', 'proplocnum', 'prop_loc')
+            columns = vLayer.fields()
+            editor_widget_setup = QgsEditorWidgetSetup('Hidden', {})
+
+            for c in columns:
+                if str(c.name()) in cols:
+                    pass
+                else:
+                    fieldIndex = vLayer.fields().indexFromName(c.name())
+                    vLayer.setEditorWidgetSetup(fieldIndex, editor_widget_setup)
+
         else:
             pass
 
@@ -7471,7 +7464,6 @@ class brsgis_makePotree(object):
                 QgsMessageLog.logMessage('.LAS path: ' + str(path), 'BRS_GIS', level=Qgis.Info)
                 # command = ["c:\\temp\\converter\\PotreeConverter.exe", path, "-o", dwgpath, "--overwrite"]
                 command = ["c:\\program files\\qgis 3.18\\bin\\PotreeConverter.exe", path, "-o", dwgpath, "-p", str(jobNo), "--overwrite"]
-                QgsMessageLog.logMessage(command, 'BRS_GIS', level=Qgis.Info)
                 subprocess.check_call(command, stderr=subprocess.STDOUT, shell=False)
 
             except Exception as e:
@@ -9392,7 +9384,6 @@ class brsgis_exportPotree(object):
             self.wwwURL = 'http://' + self.wwwServerName + '/potree/' + self.pageName + '.html'
             QgsMessageLog.logMessage('wwwRootFolder: ' + str(self.wwwRootFolder), 'BRS_GIS', level=Qgis.Info)
             QgsMessageLog.logMessage('url: ' + str(self.wwwURL), 'BRS_GIS', level=Qgis.Info)
-            QgsMessageLog.logMessage('pcFolder: ' + str(self.pcFolder + ' ' + 'wwwPCFolder: ' + self.wwwPCFolder), 'BRS_GIS', level=Qgis.Info)
 
             from distutils import file_util, dir_util
 
@@ -9415,7 +9406,6 @@ class brsgis_exportPotree(object):
             QMessageBox.critical(self.iface.mainWindow(), "EXCEPTION",
                                  "Details: " + str(exc_type) + ' ' + str(fname) + ' ' + str(
                                      exc_tb.tb_lineno) + ' ' + str(e))
-
 
 class brsgis_CADexportOrig_dialog(QDialog, Ui_brsgis_cadOutputs_form):
 
@@ -9732,15 +9722,39 @@ class brsgis_exportCAD(object):
         # NEED CLEAN EXIT IF UNSUPPORTED TOWN.
         if self.cV == 2:
             self.intersectCONTOURS(town)
-            self.iLayer = QgsProject.instance().mapLayersByName('Intersection')[0]
-            self.multi2single(self.iLayer)
-            self.sLayer = QgsProject.instance().mapLayersByName('Single parts')[0]
-            self.exportGeoJSON(self.sLayer, contoursGeoJSON)
-            self.exportSHP(self.iLayer, contoursSHP)
-            command = ["ogr2ogr", "-skipfailures", "-f", "DXF", "-zField", """Elev_FT""", contoursDXF,
-                       contoursSHP]
-            subprocess.check_call(command, stderr=subprocess.DEVNULL, stdout=subprocess.DEVNULL)
-            filenames.append(gispath + "\\contours.dxf")
+            try:
+              self.iLayer = QgsProject.instance().mapLayersByName('Intersection')[0]
+              self.multi2single(self.iLayer)
+              self.sLayer = QgsProject.instance().mapLayersByName('Single parts')[0]
+              self.exportGeoJSON(self.sLayer, contoursGeoJSON)
+              self.exportSHP(self.iLayer, contoursSHP)
+              command = ["ogr2ogr", "-skipfailures", "-f", "DXF", "-zField", """Elev_FT""", contoursDXF,
+                         contoursSHP]
+              subprocess.check_call(command, stderr=subprocess.DEVNULL, stdout=subprocess.DEVNULL)
+              filenames.append(gispath + "\\contours.dxf")
+            except Exception as e:
+                # QgsMessageLog.logMessage('EXCEPTION: ' + str(e), 'BRS_GIS', level=Qgis.Info)
+                msg = QMessageBox()
+                msg.setWindowTitle('CONTOURS UNAVAILABLE!')
+                msg.setText('There are no contours available for this town.  Please try again without contours.')
+                cont = msg.addButton('Continue', QMessageBox.AcceptRole)
+                msg.setDefaultButton(cont)
+                msg.exec_()
+                msg.deleteLater()
+                if msg.clickedButton() is cont:
+                    self.iface.actionSelect().trigger()
+                    layer = QgsProject.instance().mapLayersByName('output')[0]
+                    QgsProject.instance().removeMapLayer(layer.id())
+                    self.iface.messageBar().clearWidgets()
+                    QgsMessageLog.logMessage('DEBUG: NO CONTOURS - Exiting...', 'BRS_GIS', level=Qgis.Info)
+                    try:
+                        self.iface.mapCanvas().selectionChanged.disconnect(self.select_changed)
+                    except Exception as e:
+                        pass
+                    return
+                    
+                else:
+                    return
 
         if self.aeV == 2:
             self.intersectALL(aZoneLayer, town)
@@ -10074,7 +10088,8 @@ class cleanupCAD(object):
 
     def run(self):
         QgsMessageLog.logMessage('Attempting cleanup...', 'BRS_GIS', level=Qgis.Info)
-
+        self.vl = QgsProject.instance().mapLayersByName('brs_jobs')[0]
+        self.iface.setActiveLayer(self.vl)
         try:
           feat = self.iface.activeLayer().selectedFeatures()[0]
         except Exception as e:
@@ -10109,258 +10124,6 @@ class cleanupCAD(object):
                 exc_type, exc_obj, exc_tb = sys.exc_info()
                 fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
                 QgsMessageLog.logMessage("File Deletion Error - Details: " + str(exc_type) + ' ' + str(fname) + ' ' + str(exc_tb.tb_lineno) + ' ' + str(e), 'BRS_GIS', level=Qgis.Info)
-
-class brsgis_searchD(object):
-
-    def __init__(self, iface):
-        self.iface = iface
-
-    def run(self):
-        QgsMessageLog.logMessage('Search initiated...', 'BRS_GIS', level=Qgis.Info)
-        eMenu = self.iface.mainWindow()
-
-        vLayer = self.iface.activeLayer()
-        oLayer = vLayer
-
-        if vLayer.name() == 'brs_jobs':
-
-            pLayer = QgsProject.instance().mapLayersByName('brs_jobs')[0]
-            cLayer = QgsProject.instance().mapLayersByName('brs_contacts')[0]
-            pLayer = pLayer.id()
-            cLayer = cLayer.id()
-
-            self.killRelation(pLayer, cLayer)
-            QgsMessageLog.logMessage('Hiding columns...', 'BRS_GIS', level=Qgis.Info)
-
-            cols = ('job_no','rev_no','job_type','jobSubtype','map_bk_lot','old_plan_no','job_desc','client_name','folder_name',
-                    'client_role','contact_type','contact_addr','client_name','locus_addr','town','planbook_page',
-                    'estimate','active','pins_set','date_recorded', 'completed')
-
-            columns = vLayer.fields()
-            editor_widget_setup = QgsEditorWidgetSetup('Hidden', {})
-
-            for c in columns:
-                if str(c.name()) in cols:
-                    pass
-                else:
-                    fieldIndex = vLayer.fields().indexFromName(c.name())
-                    vLayer.setEditorWidgetSetup(fieldIndex, editor_widget_setup)
-
-        elif vLayer.name() == 'brs_supplementals':
-            QgsMessageLog.logMessage('Hiding columns...', 'BRS_GIS', level=Qgis.Info)
-
-            cols = ('job_no','rev_no','job_type','map_bk_lot','old_plan_no','job_desc','client_name','folder_name',
-                    'client_role','contact_type','contact_addr','client_name','locus_addr','town','planbook_page',
-                    'estimate','active','pins_set','date_recorded','old_plan','job','folder_type','supp_type',
-                    'document_subtype','design_type','map_type','map_subtype','pls_no','author', 'completed')
-
-            columns = vLayer.fields()
-            editor_widget_setup = QgsEditorWidgetSetup('Hidden', {})
-
-            for c in columns:
-                if str(c.name()) in cols:
-                    pass
-                else:
-                    fieldIndex = vLayer.fields().indexFromName(c.name())
-                    vLayer.setEditorWidgetSetup(fieldIndex, editor_widget_setup)
-
-        elif vLayer.name() == 'la_plans':
-            cols = ('plan_no','map_bk_lot','name','address','town','county','job','date','surveyor',
-                    'plan_type','size_no')
-
-            columns = vLayer.fields()
-            editor_widget_setup = QgsEditorWidgetSetup('Hidden', {})
-
-            for c in columns:
-                if str(c.name()) in cols:
-                    pass
-                else:
-                    fieldIndex = vLayer.fields().indexFromName(c.name())
-                    vLayer.setEditorWidgetSetup(fieldIndex, editor_widget_setup)
-
-        elif vLayer.name() == 'ng911rdss':
-            cols = ('RDNAME','STREETNAME','PREDIR','SUFFIX','POSTDIR','TOWN','CITY','RCOUNTY','ROUTE_NUM','ONEWAY',
-                    'SPEED','RDCLASS')
-
-            columns = vLayer.fields()
-            editor_widget_setup = QgsEditorWidgetSetup('Hidden', {})
-
-            for c in columns:
-                if str(c.name()) in cols:
-                    pass
-                else:
-                    fieldIndex = vLayer.fields().indexFromName(c.name())
-                    vLayer.setEditorWidgetSetup(fieldIndex, editor_widget_setup)
-
-        elif vLayer.name() == 'Parcels':
-            cols = ('town','map_bk_lot','owner1','owner2','own_addr1', 'own_addr2', 'own_city', 'own_state', 'own_zip', 'rawdeeds', 'prop_loc','proplocnum','zipcode', 'source')
-
-            columns = vLayer.fields()
-            editor_widget_setup = QgsEditorWidgetSetup('Hidden', {})
-
-            for c in columns:
-                if str(c.name()) in cols:
-                    pass
-                else:
-                    fieldIndex = vLayer.fields().indexFromName(c.name())
-                    vLayer.setEditorWidgetSetup(fieldIndex, editor_widget_setup)
-        else:
-            pass
-
-        QgsMessageLog.logMessage('Clear form config...', 'BRS_GIS', level=Qgis.Info)
-
-        form_config = self.iface.activeLayer().editFormConfig()
-        #form_config.setInitCodeSource(1)
-        self.iface.activeLayer().setEditFormConfig(form_config)
-
-        QgsMessageLog.logMessage('Launching search form...', 'BRS_GIS', level=Qgis.Info)
-
-        try:
-            for a in eMenu.findChildren(QAction, 'mActionSelectByForm'):
-                a.trigger()
-        except Exception as e:
-            pass
-
-        self.vl = QgsProject.instance().mapLayersByName('brs_jobs')[0]
-        self.iface.setActiveLayer(self.vl)
-        jform = 'brs_jobs.ui'
-        jpy = 'brs_jobs_init.py'
-        form_config = self.iface.activeLayer().editFormConfig()
-        fPath = self.resolveUI(jform)
-        pyPath = self.resolveUI(jpy)
-
-        jstd = 'brs_jobs_std.qml'
-        qmlPath = self.resolve(jstd)
-        self.vl = QgsProject.instance().mapLayersByName('brs_jobs')[0]
-        self.vl.loadNamedStyle(qmlPath)
-        self.vl.setSubsetString('"supp_type"=\'%s\'' % 'X')
-
-        # QgsMessageLog.logMessage('RESET: ' + str(fPath) + ' | ' + str(pyPath), 'BRS_GIS', level=Qgis.Info)
-        form_config.setUiForm(fPath)
-        form_config.setInitCodeSource(1)
-        form_config.setInitFilePath(pyPath)
-        self.iface.activeLayer().setEditFormConfig(form_config)
-
-        self.vl = QgsProject.instance().mapLayersByName('la_plans')[0]
-        self.iface.setActiveLayer(self.vl)
-        jform = 'la_plans.ui'
-        jpy = 'la_plans_init.py'
-        form_config = self.iface.activeLayer().editFormConfig()
-        fPath = self.resolveUI(jform)
-        pyPath = self.resolveUI(jpy)
-        form_config.setUiForm(fPath)
-        form_config.setInitCodeSource(1)
-        form_config.setInitFilePath(pyPath)
-        self.iface.activeLayer().setEditFormConfig(form_config)
-
-        jstd = 'la_plans_std.qml'
-        qmlPath = self.resolve(jstd)
-        self.vl = QgsProject.instance().mapLayersByName('la_plans')[0]
-        self.vl.loadNamedStyle(qmlPath)
-        # self.vl.setSubsetString('"size_no"<>\'%s\'' % 'K')
-
-        self.vl = QgsProject.instance().mapLayersByName('brs_contacts')[0]
-        self.iface.setActiveLayer(self.vl)
-        jform = 'brs_contacts.ui'
-        jpy = 'brs_contacts_init.py'
-        form_config = self.iface.activeLayer().editFormConfig()
-        fPath = self.resolveUI(jform)
-        pyPath = self.resolveUI(jpy)
-        form_config.setUiForm(fPath)
-        form_config.setInitCodeSource(1)
-        form_config.setInitFilePath(pyPath)
-        self.iface.activeLayer().setEditFormConfig(form_config)
-
-        self.vl = QgsProject.instance().mapLayersByName('brs_supplementals')[0]
-        self.iface.setActiveLayer(self.vl)
-        jform = 'brs_supplementals.ui'
-        jpy = 'brs_supplementals_init.py'
-        form_config = self.iface.activeLayer().editFormConfig()
-        fPath = self.resolveUI(jform)
-        pyPath = self.resolveUI(jpy)
-        form_config.setUiForm(fPath)
-        form_config.setInitCodeSource(1)
-        form_config.setInitFilePath(pyPath)
-        self.iface.activeLayer().setEditFormConfig(form_config)
-
-        jstd = 'brs_supps_std.qml'
-        qmlPath = self.resolve(jstd)
-        self.vl = QgsProject.instance().mapLayersByName('brs_supplementals')[0]
-        self.vl.loadNamedStyle(qmlPath)
-        self.vl.setSubsetString('"supp_type"<>\'%s\'' % 'X')
-
-        jstd = 'parcels.qml'
-        qmlPath = self.resolve(jstd)
-        self.vl = QgsProject.instance().mapLayersByName('Parcels')[0]
-        self.vl.loadNamedStyle(qmlPath)
-
-        try:
-            self.setRelation(pLayer,cLayer)
-        except Exception as e:
-            pass
-
-        self.iface.setActiveLayer(oLayer)
-        self.resetLegend()
-
-    def resetLegend(self):
-        root = QgsProject.instance().layerTreeRoot()
-        for child in root.children():
-            child.setExpanded(False)
-        aGroup = root.findGroup('Surveyor')
-        aGroup.setExpanded(True)
-
-    def setAllColumnsHidden(self, layer):
-        columns = layer.fields()
-        editor_widget_setup = QgsEditorWidgetSetup('Hidden', {})
-
-        for c in columns:
-            # QgsMessageLog.logMessage(c.name(), 'BRS_GIS', level=Qgis.Info)
-            fieldIndex = layer.fields().indexFromName(c.name())
-            layer.setEditorWidgetSetup(fieldIndex, editor_widget_setup)
-
-    def setColumnVisibility(self, layer, columnName):
-        columns = layer.fields()
-        for c in columns:
-            if c.name() == columnName:
-                editor_widget_setup = QgsEditorWidgetSetup('TextEdit', {'IsMultiline': 'False'})
-                fieldIndex = layer.fields().indexFromName(c.name())
-                layer.setEditorWidgetSetup(fieldIndex, editor_widget_setup)
-            else:
-                pass
-
-    def setRelation(self, pLayer, cLayer):
-        rel = QgsRelation()
-        rel.setReferencingLayer(cLayer)
-        rel.setReferencedLayer(pLayer)
-        rel.addFieldPair('jobs_id', 'sid')
-        rel.setId('fk_jobs_contacts')
-        rel.setName('Job Contacts')
-        # rel.isValid() # It will only be added if it is valid. If not, check the ids and field names
-        QgsProject.instance().relationManager().addRelation(rel)
-
-    def killRelation(self, pLayer, cLayer):
-        rel = QgsRelation()
-        rel.setReferencingLayer(cLayer)
-        rel.setReferencedLayer(pLayer)
-        rel.addFieldPair('jobs_id', 'sid')
-        rel.setId('fk_jobs_contacts')
-        rel.setName('Job Contacts')
-        # rel.isValid() # It will only be added if it is valid. If not, check the ids and field names
-        QgsProject.instance().relationManager().removeRelation(rel)
-
-    def resolve(name, basepath=None):
-        if not basepath:
-            basepath = os.path.dirname(os.path.realpath(__file__))
-        else:
-            qPath = os.path.dirname(os.path.realpath(__file__)) + '\\QML\\' + basepath
-            return qPath
-
-    def resolveUI(name, basepath=None):
-        if not basepath:
-            basepath = os.path.dirname(os.path.realpath(__file__))
-        else:
-            qPath = os.path.dirname(os.path.realpath(__file__)) + '\\UI\\' + basepath
-            return qPath
 
 class brsgis_allOutputs(object):
 
