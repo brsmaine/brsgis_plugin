@@ -1,3 +1,17 @@
+--------
+v10.0 (DEV) || 2024.26.NOV
+--------
+
+Welcome back.  Latest version, nearly reaady for PRD.  
+
+Includes all recent updates, including but not limited to:
+∙Duplex Outputs
+∙Folder Label Update
+∙Generate ALL Outputs
+∙Generate CAD Outputs (NEW)
+∙POTREE EXPORT (+360 Pano Support)
+
+--------
 v8.0 (PRD) || 2021.01.AUG
 --------
 
