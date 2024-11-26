@@ -14,6 +14,8 @@ Welcome back.  Latest version, nearly reaady for PRD.  2024 updates, including b
 
 ∙POTREE EXPORT (+360 Pano Support)
 
+∙2024 PARCEL & Town Data Re-implementation
+
 --------
 v8.0 (PRD) || 2021.01.AUG
 --------
