@@ -239,7 +239,6 @@ def jobFolders(jobNo):
     shutil.copy(cmdpath, panopath)
 
 # classes
-
 class FuncThread(threading.Thread):
     def run(self, *args):
       print( self._args )
