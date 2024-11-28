@@ -38,7 +38,7 @@ from qgis.core import QgsProject, QgsMessageLog, QgsDataSourceUri, Qgis, QgsPrin
 
 sys.path.append(os.path.dirname(os.path.abspath(__file__)) + "/forms")
 sys.path.append(os.path.dirname(os.path.abspath(__file__)) + "/QML")
-sys.path.append(os.path.dirname(os.path.abspath(__file__)) + "/360Tools")
+sys.path.append(os.path.dirname(os.path.abspath(__file__)) + "/LASTools")
 
 from .forms.brsgis_label_form import *
 from .forms.brsgis_supp_pre_form import *
@@ -3550,9 +3550,9 @@ class brsgis_printFolderLabel(object):
         if not os.path.exists(panopath):
             os.makedirs(panopath)
 
-        coordscmd = '360Tools\\coords.cmd'
-        coordspath = self.resolve(coordscmd)
-        shutil.copy(coordspath, panopath)
+        ltcmd = 'L1Pipeline_NEW.cmd'
+        ltpath = self.resolve(ltcmd)
+        QgsMessageLog.logMessage('ltpath: ' + ltpath + '...', 'BRS_GIS', level=Qgis.Info)
         
         from openpyxl import load_workbook
 
@@ -8727,10 +8727,6 @@ class brsgis_exportDXF(object):
 
                 if not os.path.exists(panopath):
                     os.makedirs(panopath)
-                
-                coordscmd = '360Tools\\coords.cmd'
-                coordspath = self.resolve(coordscmd)
-                shutil.copy(coordspath, panopath)
 
                 town = str(feat["town"])
 
@@ -9352,10 +9348,6 @@ class brsgis_exportPotree(object):
                 
             if not os.path.exists(panopath):
                 os.makedirs(panopath)
-
-            coordscmd = '360Tools\\coords.cmd'
-            coordspath = self.resolve(coordscmd)
-            shutil.copy(coordspath, panopath)
 
             town = str(feat["town"])
 
