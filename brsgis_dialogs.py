@@ -4021,6 +4021,7 @@ class brsgis_label_dialog(QDialog, Ui_brsgis_label_form):
             qPath = os.path.dirname(os.path.realpath(__file__)) + '\\' + basepath
             return qPath
 
+
 class brsgis_printMapTable(object):
 
     def __init__(self, iface):
@@ -4836,6 +4837,7 @@ class brsgis_printMapTable(object):
         request.setSubsetOfAttributes(['gid'], layerRelated.fields())
         request.setFlags(QgsFeatureRequest.NoGeometry)
         return pFinal
+
 
 class brsgis_printContacts(object):
     def __init__(self, iface):
@@ -9161,6 +9163,7 @@ class brsgis_exportPotree(object):
                                  "Details: " + str(exc_type) + ' ' + str(fname) + ' ' + str(
                                      exc_tb.tb_lineno) + ' ' + str(e))
 
+
 class brsgis_CADexportOrig_dialog(QDialog, Ui_brsgis_cadOutputs_form):
 
     def __init__(self, iface):
@@ -9190,6 +9193,7 @@ class brsgis_CADexportOrig_dialog(QDialog, Ui_brsgis_cadOutputs_form):
 
         self.eDXF_dialog = brsgis_exportDXF(self.iface, cValue, pValue, aeValue, veValue, hatValue, slopeValue, rdsValue)
         self.eDXF_dialog.initGui(cValue, pValue, aeValue, veValue, hatValue, slopeValue, rdsValue)
+
 
 class brsgis_CADexportNEW_dialog(QDialog, Ui_brsgis_cadOutputs_form):
 
@@ -9221,6 +9225,7 @@ class brsgis_CADexportNEW_dialog(QDialog, Ui_brsgis_cadOutputs_form):
         self.eCAD_dialog = brsgis_exportCAD(self.iface, cValue, pValue, aeValue, veValue, hatValue, slopeValue, rdsValue)
         self.eCAD_dialog.initGui(cValue, pValue, aeValue, veValue, hatValue, slopeValue, rdsValue)
         
+
 class brsgis_potreeExport_dialog(QDialog, Ui_PotreeDialog):
 
     def __init__(self, iface):
@@ -9295,6 +9300,7 @@ class brsgis_supp_dialog(QDialog, Ui_brsgis_supp_pre_form):
     def finished(self, **kwargs):
         self.done(1)
         
+
 class brsgis_exportCAD(object):
 
     def __init__(self, iface, cV, pV, aeV, veV, hV, sV, rdsV):
@@ -9815,6 +9821,7 @@ class brsgis_exportCAD(object):
         if self.vl == QgsProject.instance().mapLayersByName('ng911rdss')[0]:
             self.vl.setSubsetString("")
 
+
 class cleanupCAD(object):
 
     def __init__(self, iface):
@@ -9858,6 +9865,7 @@ class cleanupCAD(object):
                 exc_type, exc_obj, exc_tb = sys.exc_info()
                 fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
                 QgsMessageLog.logMessage("File Deletion Error - Details: " + str(exc_type) + ' ' + str(fname) + ' ' + str(exc_tb.tb_lineno) + ' ' + str(e), 'BRS_GIS', level=Qgis.Info)
+
 
 class brsgis_allOutputs(object):
 
