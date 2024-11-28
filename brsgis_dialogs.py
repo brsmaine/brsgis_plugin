@@ -184,7 +184,6 @@ def resetLegend(self):
     aGroup = root.findGroup("always on")
     aGroup.setExpanded(False)
 
-
 def getSQL(self):
     base64_pw = 'QlJTTUFpbkU0NDQ1'
     base64_bytes = base64_pw.encode('ascii')
@@ -193,6 +192,51 @@ def getSQL(self):
     pw = str(pw)
     return pw
     # QgsMessageLog.logMessage('user: postgres | pass: ' + str(pw), 'BRS_GIS', level=Qgis.Info)
+
+def jobFolders(jobNo):
+    import datetime
+    year = datetime.datetime.today().strftime('%Y')
+    path = os.path.join("Z:\\", "BRS-DEV", year, jobNo)
+    jipath = os.path.join(path, "Job_Info")
+    dwgpath = os.path.join(path, "dwg")
+    frcpath = os.path.join(path, "From_Others")
+    gispath = os.path.join(path, "GIS")
+    ppath = os.path.join(path, "prints")
+    supath = os.path.join(path, "survey")
+    panopath = os.path.join(supath, "360Pano")
+    rspath = os.path.join(path, "research")
+
+    QgsMessageLog.logMessage('Checking output folder: ' + path + '...', 'BRS_GIS', level=Qgis.Info)
+    if not os.path.exists(path):
+        os.makedirs(path)
+        os.makedirs(jipath)
+        os.makedirs(dwgpath)
+        os.makedirs(gispath)
+        os.makedirs(frcpath)
+        os.makedirs(ppath)
+        os.makedirs(supath)
+        os.makedirs(panopath)
+        os.makedirs(rspath)
+
+    if not os.path.exists(jipath):
+        os.makedirs(jipath)
+    if not os.path.exists(dwgpath):
+        os.makedirs(dwgpath)
+    if not os.path.exists(gispath):
+        os.makedirs(gispath)
+    if not os.path.exists(frcpath):
+        os.makedirs(frcpath)
+    if not os.path.exists(ppath):
+        os.makedirs(ppath)
+    if not os.path.exists(supath):
+        os.makedirs(supath)
+    if not os.path.exists(rspath):
+        os.makedirs(rspath)
+    if not os.path.exists(panopath):
+        os.makedirs(panopath)
+
+    cmdpath = os.path.dirname(os.path.realpath(__file__)) + '\\360Tools\\coords.cmd'
+    shutil.copy(cmdpath, panopath)
 
 # classes
 
@@ -3479,7 +3523,6 @@ class brsgis_printFolderLabel(object):
             addr = addr
 
         town = attribs["town"]
-        QgsMessageLog.logMessage('addr: ' + str(addr) + ' town: ' + str(town) , 'BRS_GIS', level=Qgis.Info)
 
         try:
 
@@ -3499,61 +3542,19 @@ class brsgis_printFolderLabel(object):
 
         jobType = attribs["job_type"]
         jobSubType = attribs['jobSubtype']
-        # QgsMessageLog.logMessage('purpose: ' + str(jobSubType) + '...', 'BRS_GIS', level=Qgis.Info)
-
+        
         if str(jobSubType) == 'NULL':
             jobSubType = ''
         else:
             jobSubType = ' | ' + jobSubType
-
-        # QgsMessageLog.logMessage('purpose: ' + str(jobSubType) + '...', 'BRS_GIS', level=Qgis.Info)
-
+        
         date_due = attribs["date_due"]
 
+        jobFolders(jobNo)
+ 
         path = os.path.join("Z:\\", "BRS-DEV", year, jobNo)  # need to programattically grab year
         jipath = os.path.join(path, "Job_Info")
 
-        dwgpath = os.path.join(path, "dwg")
-        frcpath = os.path.join(path, "From_Others")
-        gispath = os.path.join(path, "GIS")
-        ppath = os.path.join(path, "prints")
-        supath = os.path.join(path, "survey")
-        panopath = os.path.join(supath, "360Pano")
-        rspath = os.path.join(path, "research")
-
-        QgsMessageLog.logMessage('Checking output folder: ' + path + '...', 'BRS_GIS', level=Qgis.Info)
-        if not os.path.exists(path):
-            os.makedirs(path)
-            os.makedirs(jipath)
-            os.makedirs(dwgpath)
-            os.makedirs(gispath)
-            os.makedirs(frcpath)
-            os.makedirs(ppath)
-            os.makedirs(supath)
-            os.makedirs(panopath)
-            os.makedirs(rspath)
-
-        if not os.path.exists(jipath):
-            os.makedirs(jipath)
-        if not os.path.exists(dwgpath):
-            os.makedirs(dwgpath)
-        if not os.path.exists(gispath):
-            os.makedirs(gispath)
-        if not os.path.exists(frcpath):
-            os.makedirs(frcpath)
-        if not os.path.exists(ppath):
-            os.makedirs(ppath)
-        if not os.path.exists(supath):
-            os.makedirs(supath)
-        if not os.path.exists(rspath):
-            os.makedirs(rspath)
-        if not os.path.exists(panopath):
-            os.makedirs(panopath)
-
-        coordscmd = '360Tools\\coords.cmd'
-        coordspath = self.resolve(coordscmd)
-        shutil.copy(coordspath, panopath)
-        
         from openpyxl import load_workbook
 
         tFile = 'BRS_templates.xlsx'
@@ -3603,7 +3604,6 @@ class brsgis_printFolderLabel(object):
                         ws['A20'] = ''
                     else:
                         ws['A20'] = date_due
-                QgsMessageLog.logMessage('clientName: ' + clientName + ' ' + 'folderName: ' + folderName + ' ' + 'primary_contact: ' + primaryContact, 'BRS_GIS', level=Qgis.Info)
                 if str(clientName) != str(primaryContact):
                     ws['A3'] = 'c/o: ' + primaryContact
                 else:
@@ -3799,8 +3799,6 @@ class brsgis_printYellowSheet(object):
                 from openpyxl.styles import PatternFill
             
             ws2['B4'] = folderName + ' (' + folderType + ')'
-            # sws2['B4'].fill = PatternFill(start_color="ffff00", end_color="ffff00", fill_type="solid")
-
             ws2['B5'] = clientName
             ws2['B6'] = locus_addr
             ws2['F4'] = mail_addr
@@ -3813,7 +3811,6 @@ class brsgis_printYellowSheet(object):
             ws2['C3'] = jobSubType
             ws2['B11'] = lowtide
             ws2['B12'] = lowtide_hrs
-
             ws2['C18'] = rate_rs
             ws2['C17'] = rate_cad
             ws2['C16'] = rate_fw
@@ -4023,7 +4020,6 @@ class brsgis_label_dialog(QDialog, Ui_brsgis_label_form):
         else:
             qPath = os.path.dirname(os.path.realpath(__file__)) + '\\' + basepath
             return qPath
-
 
 class brsgis_printMapTable(object):
 
@@ -4438,10 +4434,8 @@ class brsgis_printMapTable(object):
             excel2 = None
             
             filenames = [pfile, pfile2]
-            #merger = PdfMerger()
             merger = PdfWriter()
             for filename in filenames:
-                #merger.append(PdfReader(open(filename, 'rb')))
                 merger.append(filename)
             merger.write(outfile)
             merger.close()
@@ -4712,10 +4706,7 @@ class brsgis_printMapTable(object):
             oldPlan = feat['old_plan']
             pval = oldPlan
 
-            # QgsMessageLog.logMessage('LOOK HERE MOTHERFUCKER!!! | ' + str(pval), 'BRS_GIS', level=Qgis.Info)
-
             if str(jobNo) in (str(pval)):
-                # QgsMessageLog.logMessage('FUCK YEAH YOU DID! | ' + str(pval), 'BRS_GIS', level=Qgis.Info)
                 pass
             else:
 
@@ -4724,7 +4715,6 @@ class brsgis_printMapTable(object):
 
                 elif str(pval) == 'NULL':
                     pval = ''
-                    # QgsMessageLog.logMessage('NULL pval: ' + str(pval), 'BRS_GIS', level=Qgis.Info)
                 else:
                     pval = pval
                     plans.append(pval)
@@ -4752,8 +4742,6 @@ class brsgis_printMapTable(object):
             plans = []
             pval = ''
             ppval = ''
-
-            # QgsMessageLog.logMessage('pFinal: ' + str(pFinal), 'BRS_GIS', level=Qgis.Info)
 
         else:
             pFinal = ''
@@ -4786,8 +4774,6 @@ class brsgis_printMapTable(object):
             fid = feat['id']
             town = feat['town']
             town_parcels = feat['town_parcels']
-            QgsMessageLog.logMessage('town: ' + str(town) + ' | self.town: ' + str(self.town),
-                                     'BRS_GIS', level=Qgis.Info)
 
             if str(town_parcels) == 'NULL':
                 town = town
@@ -4808,8 +4794,6 @@ class brsgis_printMapTable(object):
                 pval = ''
 
             plen = len(plans)
-
-            QgsMessageLog.logMessage('pval: ' + str(pval), 'BRS_GIS', level=Qgis.Info)
 
             if str(pval) == 'NULL':
                 pval = ''
@@ -4839,21 +4823,19 @@ class brsgis_printMapTable(object):
                 pFinal = 'N/A'
 
             plans = []
-            #QgsMessageLog.logMessage('pFinal: ' + str(pFinal), 'BRS_GIS', level=Qgis.Info)
 
         else:
             plans = []
             pFinal = 'N/A'
             pass
-        layerRelated.setSubsetString('id > 1')
 
+        layerRelated.setSubsetString('id > 1')
         layerRelated.setSubsetString(u'"map_bk_lot" = \'%s\'' % (mbl))
         exp = QgsExpression(u'"map_bk_lot" = \'%s\'' % (mbl))
         request = QgsFeatureRequest(exp)
         request.setSubsetOfAttributes(['gid'], layerRelated.fields())
         request.setFlags(QgsFeatureRequest.NoGeometry)
         return pFinal
-
 
 class brsgis_printContacts(object):
     def __init__(self, iface):
@@ -4944,8 +4926,6 @@ class brsgis_printContacts(object):
             try:
                 aNo += 1
                 ws['B2'] = str(jobNo) + ' Contacts:'               
-
-                
 
                 c1 = 'B' + str(startCell)
                 c2 = 'B' + str(startCell + 2)
@@ -5123,10 +5103,6 @@ class brsgis_printEstimates(object):
         for column_cells in ws.columns:
             length = max(len(cell.value) + 5 for cell in column_cells)
             ws.column_dimensions[column_cells[0].column_letter].width = length
-
-        # ws.auto_filter.ref = "A1:I9999"
-        # # ws.auto_filter.add_sort_condition("I2:I9999")
-        # ws.auto_filter.add_sort_condition("A2:A9999")
 
         QgsMessageLog.logMessage('Saving file: ' + efile + '...', 'BRS_GIS', level=Qgis.Info)
         wb.save(efile)
@@ -5551,25 +5527,20 @@ class brsgis_printMapView(object):
         excel = None
         
         filenames = [mvfile, pfile]
-        #merger = PdfMerger()
         merger = PdfWriter()
         for filename in filenames:
-            #merger.append(PdfReader(open(filename, 'rb')))
             merger.append(filename)
         merger.write(outfile)
         merger.close()
         merger = None
         
         try:
-        
             os.remove(cfile)
             os.remove(pfile)
             os.remove(mvfile)
         
         except Exception as e:
             pass
-        
-        # QGuiApplication.restoreOverrideCursor()
 
     def setPaperSizePortrait(self):
 
@@ -5718,11 +5689,8 @@ class brsgis_printSiteMap(object):
         for i in self.iface.mapCanvas().layers():
             layersNames.append(str(i.name()))
 
-        # QgsMessageLog.logMessage('layers ON: ' + str(layersNames) + '...', 'BRS_GIS', level=Qgis.Info)
-
         for l in layersNames:
             self.toggleLayer(l, 0)
-            # QgsMessageLog.logMessage('layer OFF: ' + str(l) + '...', 'BRS_GIS', level=Qgis.Info)
 
         self.toggleLayer('USA_Topo_Maps', 1)
         QgsMessageLog.logMessage('USA_Topo_Maps...', 'BRS_GIS', level=Qgis.Info)
@@ -5746,17 +5714,12 @@ class brsgis_printSiteMap(object):
 
         for l in layersNames:
             self.toggleLayer(l, 1)
-            # QgsMessageLog.logMessage('layer ON: ' + str(l) + '...', 'BRS_GIS', level=Qgis.Info)
 
         self.toggleLayer('USA_Topo_Maps', 0)
-        # QgsProject.instance().layerTreeRoot().findGroup('FEMA').setItemVisibilityChecked(0)
-
         self.vl.triggerRepaint()
-
         self.iface.mapCanvas().zoomScale(currentScale)
         self.vl.setSubsetString('"supp_type"=\'%s\'' % 'X')
         self.vl.selectByIds(ids)
-
         self.reset()
         resetLegend(self)
         self.vl = QgsProject.instance().mapLayersByName('brs_jobs')[0]
@@ -5816,8 +5779,6 @@ class brsgis_printSiteMap(object):
         res = exporter.exportToImage(cf + '\\site.jpg', jpg_settings)
         if res != QgsLayoutExporter.Success:
             res = exporter.exportToImage(cf + '\\site-1.jpg', jpg_settings)
-
-        # QGuiApplication.restoreOverrideCursor()
 
     def toggleLayer(self, layer, status):
         QgsMessageLog.logMessage('TOGGLE: ' + layer + '...', 'BRS_GIS', level=Qgis.Info)
@@ -6029,7 +5990,6 @@ class brsgis_search(object):
         self.vl.loadNamedStyle(qmlPath)
         self.vl.setSubsetString('"supp_type"=\'%s\'' % 'X')
 
-        # QgsMessageLog.logMessage('RESET: ' + str(fPath) + ' | ' + str(pyPath), 'BRS_GIS', level=Qgis.Info)
         form_config.setUiForm(fPath)
         form_config.setInitCodeSource(1)
         form_config.setInitFilePath(pyPath)
@@ -6051,8 +6011,7 @@ class brsgis_search(object):
         qmlPath = self.resolve(jstd)
         self.vl = QgsProject.instance().mapLayersByName('la_plans')[0]
         self.vl.loadNamedStyle(qmlPath)
-        # self.vl.setSubsetString('"size_no"<>\'%s\'' % 'K')
-
+ 
         self.vl = QgsProject.instance().mapLayersByName('brs_contacts')[0]
         self.iface.setActiveLayer(self.vl)
         jform = 'brs_contacts.ui'
@@ -6356,7 +6315,6 @@ class brsgis_planImportXLSX(object):
                         return
 
                     centroid = geometry.centroid().asPoint()
-
                     nearestIds = spIndex.nearestNeighbor(centroid, 1)
 
                     geom = None
@@ -6451,7 +6409,6 @@ class brsgis_planImportXLSX(object):
                 self.vl.changeAttributeValue(newF.id(), idx, latitude)
                 idx = dataProvider.fieldNameIndex('longitude')
                 self.vl.changeAttributeValue(newF.id(), idx, longitude)
-
                 self.vl.updateFields()
                 self.iface.activeLayer().commitChanges()
                 geom = None
@@ -7351,159 +7308,6 @@ class brsgis_jobImportXLSX(object):
 
         fId = [fIds[-1]]
         self.vl.selectByIds(fId)
-
-
-class brsgis_makePotree(object):
-
-    def __init__(self, iface):
-
-        self.iface = iface
-
-    def initGui(self):
-
-        self.action = QAction("makePotree.", self.iface.mainWindow())
-        self.action.triggered.connect(self.run)
-        self.action.trigger()
-
-    def run(self):
-
-        self.iface.mapCanvas().selectionChanged.connect(self.select_changed)
-        self.vl = QgsProject.instance().mapLayersByName('brs_jobs')[0]
-        self.iface.setActiveLayer(self.vl)
-        # path = "C:\\BRS_GIS\\jobsWIP.xlsx"
-        vLayer = self.iface.activeLayer()
-        feats_count = vLayer.selectedFeatureCount()
-
-        if feats_count == 0:
-            msg = QMessageBox()
-            msg.setWindowTitle('SELECT Job')
-            msg.setText('Click OK and select the SOURCE job you wish to export to Potree.')
-            cont = msg.addButton('Continue', QMessageBox.AcceptRole)
-            cancel = msg.addButton('Cancel', QMessageBox.RejectRole)
-            msg.setDefaultButton(cont)
-            msg.exec_()
-            msg.deleteLater()
-            if msg.clickedButton() is cont:
-                self.iface.actionSelect().trigger()
-            else:
-                try:
-                    self.iface.mapCanvas().selectionChanged.disconnect(self.select_changed)
-                except Exception as e:
-                    pass
-                return
-        else:
-            job = self.iface.activeLayer().selectedFeatures()[0]
-            jobNo = job["job_no"]
-            msg = QMessageBox()
-            msg.setWindowTitle('SELECT Job')
-            msg.setText(str(jobNo) + ' is selected. Do you want to export that selection or choose a new selection?')
-            cont = msg.addButton('Continue', QMessageBox.AcceptRole)
-            new = msg.addButton('New Selection', QMessageBox.AcceptRole)
-            cancel = msg.addButton('Cancel', QMessageBox.RejectRole)
-            msg.setDefaultButton(cont)
-            msg.exec_()
-            msg.deleteLater()
-
-            if msg.clickedButton() is cont:
-                try:
-                    self.iface.mapCanvas().selectionChanged.disconnect(self.select_changed)
-                except Exception as e:
-                    pass
-                self.select_changed()
-
-            elif msg.clickedButton() is new:
-                msg = QMessageBox()
-                msg.setWindowTitle('SELECT Job')
-                msg.setText('Click OK and select the SOURCE job you wish to export.')
-                cont = msg.addButton('Continue', QMessageBox.AcceptRole)
-                cancel = msg.addButton('Cancel', QMessageBox.RejectRole)
-                msg.setDefaultButton(cont)
-                msg.exec_()
-                msg.deleteLater()
-                if msg.clickedButton() is cont:
-                    for a in self.iface.mainWindow().children():
-                        if a.objectName() == 'mActionDeselectAll':
-                            a.trigger()
-                            QgsMessageLog.logMessage('FIRST RUN: Previous selection has been cleared.',
-                                                     'BRS_GIS', level=Qgis.Info)
-                            QgsMessageLog.logMessage('Job move starting...', 'BRS_GIS', level=Qgis.Info)
-                            self.iface.actionSelect().trigger()
-                elif msg.clickedButton() is cancel:
-                    try:
-                        self.iface.mapCanvas().selectionChanged.disconnect(self.select_changed)
-                    except Exception as e:
-                        pass
-            elif msg.clickedButton() is cancel:
-                QgsMessageLog.logMessage('DEBUG: Potree export cancelled.', 'BRS_GIS', level=Qgis.Info)
-                try:
-                    self.iface.mapCanvas().selectionChanged.disconnect(self.select_changed)
-                except Exception as e:
-                    pass
-
-    def select_changed(self):
-        import datetime
-        import subprocess
-        year = datetime.datetime.today().strftime('%Y')
-
-        job = self.iface.activeLayer().selectedFeatures()[0]
-        jobNo = job["job_no"]
-        jobYear = '20' + jobNo[:2]
-
-        if jobYear == year:
-            year = year
-        else:
-            year = jobYear
-
-        path = os.path.join("Z:\\", "BRS-DEV", year, jobNo)
-        dwgpath = os.path.join(path, "survey")
-        objpath = os.path.join(path, "frClient")
-        msg = QMessageBox()
-        msg.setWindowTitle('SELECT PointCloud')
-        msg.setText('Please select the PointCloud (.LAS) file for ' + str(jobNo))
-        cont = msg.addButton('OK', QMessageBox.AcceptRole)
-        msg.setDefaultButton(cont)
-        msg.exec_()
-        msg.deleteLater()
-        if msg.clickedButton() is cont:
-            try:
-                qfd = QFileDialog()
-                title = 'Open File'
-
-                # path = "C:\\BRS_GIS\\"
-                f = QFileDialog.getOpenFileName(qfd, title, dwgpath)
-                path = f[0]
-                QgsMessageLog.logMessage('.LAS path: ' + str(path), 'BRS_GIS', level=Qgis.Info)
-                # command = ["c:\\temp\\converter\\PotreeConverter.exe", path, "-o", dwgpath, "--overwrite"]
-                command = ["c:\\program files\\qgis 3.18\\bin\\PotreeConverter.exe", path, "-o", dwgpath, "-p", str(jobNo), "--overwrite"]
-                subprocess.check_call(command, stderr=subprocess.STDOUT, shell=False)
-
-            except Exception as e:
-                QgsMessageLog.logMessage('EXCEPTION: ' + str(e), 'BRS_GIS', level=Qgis.Info)
-                return
-        else:
-            pass
-
-        msg = QMessageBox()
-        msg.setWindowTitle('SELECT 3D Object')
-        msg.setText('Please select the 3D Object (.OBJ) file for ' + str(jobNo))
-        cont = msg.addButton('OK', QMessageBox.AcceptRole)
-        msg.setDefaultButton(cont)
-        msg.exec_()
-        msg.deleteLater()
-        if msg.clickedButton() is cont:
-            try:
-                qfd = QFileDialog()
-                title = 'Open File'
-
-                # path = "C:\\BRS_GIS\\"
-                f = QFileDialog.getOpenFileName(qfd, title, objpath)
-                path = f[0]
-                QgsMessageLog.logMessage('.OBJ path: ' + str(path), 'BRS_GIS', level=Qgis.Info)
-
-
-            except Exception as e:
-                QgsMessageLog.logMessage('EXCEPTION: ' + str(e), 'BRS_GIS', level=Qgis.Info)
-                return
 
 
 class brsgis_moveJob(object):
@@ -8700,37 +8504,8 @@ class brsgis_exportDXF(object):
                     year = jobYear
 
                 path = os.path.join("Z:\\", "BRS-DEV", year, jobNo)  # need to programattically grab year
-                jipath = os.path.join(path, "Job_Info")
-                dwgpath = os.path.join(path, "dwg")
-                frcpath = os.path.join(path, "From_Others")
+                jobFolders(jobNo)
                 gispath = os.path.join(path, "GIS")
-                ppath = os.path.join(path, "prints")
-                supath = os.path.join(path, "survey")
-                panopath = os.path.join(supath, "360Pano")
-                rspath = os.path.join(path, "research")
-
-                QgsMessageLog.logMessage('Checking output folder: ' + path + '...', 'BRS_GIS', level=Qgis.Info)
-
-                if not os.path.exists(path):
-                    os.makedirs(path)
-                    os.makedirs(jipath)
-                    os.makedirs(dwgpath)
-                    os.makedirs(gispath)
-                    os.makedirs(frcpath)
-                    os.makedirs(ppath)
-                    os.makedirs(supath)
-                    os.makedirs(panopath)
-                    os.makedirs(rspath)
-
-                if not os.path.exists(gispath):
-                    os.makedirs(gispath)
-
-                if not os.path.exists(panopath):
-                    os.makedirs(panopath)
-                
-                coordscmd = '360Tools\\coords.cmd'
-                coordspath = self.resolve(coordscmd)
-                shutil.copy(coordspath, panopath)
 
                 town = str(feat["town"])
 
@@ -8893,7 +8668,6 @@ class brsgis_exportDXF(object):
                 return
 
         except Exception as e:
-            # QgsMessageLog.logMessage('EXCEPTION: ' + str(e), 'BRS_GIS', level=Qgis.Info)
             msg = QMessageBox()
             msg.setWindowTitle('CONTOURS UNAVAILABLE!')
             msg.setText('There are no contours available for this town.  Please try again without contours.')
@@ -8933,7 +8707,6 @@ class brsgis_exportDXF(object):
 
         self.fb = QgsProcessingFeedback()
         self.context = QgsProcessingContext
-        # QgsMessageLog.logMessage(sInputLayer, 'BRS_GIS', level=Qgis.Info)
         self.outputLayer = processing.run("native:buffer", {
             'INPUT': sInputLayer,
             'DISSOLVE': False,
@@ -8991,16 +8764,7 @@ class brsgis_exportDXF(object):
         options.filterExtent = extent
         options.ct = QgsCoordinateTransform(layer.crs(), QgsCoordinateReferenceSystem.fromEpsgId(102684),
                                                  QgsProject.instance())
-        # v3.10+
         QgsVectorFileWriter.writeAsVectorFormatV2(layer, filename, context, options)
-
-        # v3.10-
-        # QgsVectorFileWriter.writeAsVectorFormat(layer, filename, "UTF-8",
-        #                                         QgsCoordinateReferenceSystem(102684,
-        #                                                                      QgsCoordinateReferenceSystem.EpsgCrsId)
-        #                                         , "ESRI Shapefile", filterExtent=extent,
-        #                                         overrideGeometryType=QgsWkbTypes.LineString)
-
         QgsProject.instance().removeMapLayer(layer.id())
 
     def exportGeoJSON(self, layer, filename):
@@ -9019,9 +8783,7 @@ class brsgis_exportDXF(object):
 
         options.ct = QgsCoordinateTransform(layer.crs(), QgsCoordinateReferenceSystem.fromEpsgId(102684),
                                                  QgsProject.instance())
-        # v3.10+
         QgsVectorFileWriter.writeAsVectorFormatV2(layer, filename, context, options)
-
         QgsProject.instance().removeMapLayer(layer.id())
 
     def multi2single(self, layer):
@@ -9321,42 +9083,9 @@ class brsgis_exportPotree(object):
 
             path = os.path.join("Z:\\", "BRS-DEV", year, jobNo)  # need to programattically grab year
             jipath = os.path.join(path, "Job_Info")
-            dwgpath = os.path.join(path, "dwg")
-            frcpath = os.path.join(path, "From_Others")
-            gispath = os.path.join(path, "GIS")
-            ppath = os.path.join(path, "prints")
             supath = os.path.join(path, "survey")
-            rspath = os.path.join(path, "research")
-            pcpath = os.path.join(path, "pointclouds")
-            panopath = os.path.join(supath, "360Panos")
-
-            QgsMessageLog.logMessage('Checking output folder: ' + path + '...', 'BRS_GIS', level=Qgis.Info)
-            QgsMessageLog.logMessage('useJobNo: ' + str(self.useJobNo) + ', pageName: ' + self.pageName,
-                                     'BRS_GIS', level=Qgis.Info)
-
-
-            if not os.path.exists(path):
-                os.makedirs(path)
-                os.makedirs(jipath)
-                os.makedirs(dwgpath)
-                os.makedirs(gispath)
-                os.makedirs(frcpath)
-                os.makedirs(ppath)
-                os.makedirs(supath)
-                os.makedirs(rspath)
-                os.makedirs(pcpath)
-                os.makedirs(panopath)
-
-            if not os.path.exists(gispath):
-                os.makedirs(gispath)
-                
-            if not os.path.exists(panopath):
-                os.makedirs(panopath)
-
-            coordscmd = '360Tools\\coords.cmd'
-            coordspath = self.resolve(coordscmd)
-            shutil.copy(coordspath, panopath)
-
+            panopath = supath + "\\360Pano\\"
+            jobFolders(jobNo)
             town = str(feat["town"])
 
             self.strObjParams = str(self.objParams)
@@ -9366,7 +9095,6 @@ class brsgis_exportPotree(object):
             self.strObjParams = self.strObjParams.replace(']', '')
 
             QgsMessageLog.logMessage('fileLAS: ' + str(self.fileLAS), 'BRS_GIS', level=Qgis.Info)
-            # command = ["c:\\temp\\converter\\PotreeConverter.exe", path, "-o", dwgpath, "--overwrite"]
             command = ["c:\\program files\\qgis 3.18\\bin\\converter\\PotreeConverter.exe", self.fileLAS, "-o", supath, "-p",
                        self.strObjParams,
                        "--overwrite"]
@@ -9375,11 +9103,11 @@ class brsgis_exportPotree(object):
             if str(self.filePanos) == '':
                 QgsMessageLog.logMessage('EXCLUDE PANOS', 'BRS_GIS', level=Qgis.Info)
             else:
-                if os.path.exists(supath + "\\pointclouds\\" + self.pageName + "\\360Panos"):
-                    shutil.rmtree(supath + "\\pointclouds\\" + self.pageName + "\\360Panos")
-                    shutil.copytree(panopath, supath + "\\pointclouds\\" + self.pageName + "\\360Panos")
+                if os.path.exists(supath + "\\pointclouds\\" + self.pageName + "\\360Pano"):
+                    shutil.rmtree(supath + "\\pointclouds\\" + self.pageName + "\\360Pano")
+                    shutil.copytree(panopath, supath + "\\pointclouds\\" + self.pageName + "\\360Pano")
                 else:
-                    shutil.copytree(panopath, supath + "\\pointclouds\\" + self.pageName + "\\360Panos")
+                    shutil.copytree(panopath, supath + "\\pointclouds\\" + self.pageName + "\\360Pano")
     
             if str(self.filePLY) == '':
                 QgsMessageLog.logMessage('EXCLUDE .PLY', 'BRS_GIS', level=Qgis.Info)
@@ -9405,21 +9133,23 @@ class brsgis_exportPotree(object):
             self.htmlFile = supath + "\\" + self.pageName + ".html"
             self.wwwRootFolder = '\\\\BRS-DEUCE\\inetpub$\\wwwroot\\brstree'
             self.wwwPCFolder = self.wwwRootFolder + '\\pointclouds\\' + self.pageName
-            self.wwwURL = 'http://' + self.wwwServerName + '/potree/' + self.pageName + '.html'
+            self.wwwURL = 'http://' + self.wwwServerName + '/brstree/' + self.pageName + '.html'
             QgsMessageLog.logMessage('wwwRootFolder: ' + str(self.wwwRootFolder), 'BRS_GIS', level=Qgis.Info)
             QgsMessageLog.logMessage('url: ' + str(self.wwwURL), 'BRS_GIS', level=Qgis.Info)
 
             from distutils import file_util, dir_util
 
             distutils.file_util.copy_file(self.htmlFile, self.wwwRootFolder)
+            # distutils.dir_util.copy_tree(self.pcFolder, self.wwwPCFolder)
+            
             if not os.path.exists(self.wwwPCFolder):
                 os.makedirs(self.wwwPCFolder)
-                os.makedirs(self.wwwPCFolder + "\\360Panos")
+                os.makedirs(self.wwwPCFolder + "\\360Pano")
                 distutils.dir_util.copy_tree(self.pcFolder, self.wwwPCFolder)
 
             else:
-              if not os.path.exists(self.wwwPCFolder + "\\360Panos"):
-                    os.makedirs(self.wwwPCFolder + "\\360Panos")
+              if not os.path.exists(self.wwwPCFolder + "\\360Pano"):
+                    os.makedirs(self.wwwPCFolder + "\\360Pano")
                     distutils.dir_util.copy_tree(self.pcFolder, self.wwwPCFolder)
               else:
                   distutils.dir_util.copy_tree(self.pcFolder, self.wwwPCFolder)            
@@ -9430,7 +9160,6 @@ class brsgis_exportPotree(object):
             QMessageBox.critical(self.iface.mainWindow(), "EXCEPTION",
                                  "Details: " + str(exc_type) + ' ' + str(fname) + ' ' + str(
                                      exc_tb.tb_lineno) + ' ' + str(e))
-
 
 class brsgis_CADexportOrig_dialog(QDialog, Ui_brsgis_cadOutputs_form):
 
@@ -9462,7 +9191,6 @@ class brsgis_CADexportOrig_dialog(QDialog, Ui_brsgis_cadOutputs_form):
         self.eDXF_dialog = brsgis_exportDXF(self.iface, cValue, pValue, aeValue, veValue, hatValue, slopeValue, rdsValue)
         self.eDXF_dialog.initGui(cValue, pValue, aeValue, veValue, hatValue, slopeValue, rdsValue)
 
-
 class brsgis_CADexportNEW_dialog(QDialog, Ui_brsgis_cadOutputs_form):
 
     def __init__(self, iface):
@@ -9492,7 +9220,6 @@ class brsgis_CADexportNEW_dialog(QDialog, Ui_brsgis_cadOutputs_form):
 
         self.eCAD_dialog = brsgis_exportCAD(self.iface, cValue, pValue, aeValue, veValue, hatValue, slopeValue, rdsValue)
         self.eCAD_dialog.initGui(cValue, pValue, aeValue, veValue, hatValue, slopeValue, rdsValue)
-       
         
 class brsgis_potreeExport_dialog(QDialog, Ui_PotreeDialog):
 
@@ -9568,7 +9295,6 @@ class brsgis_supp_dialog(QDialog, Ui_brsgis_supp_pre_form):
     def finished(self, **kwargs):
         self.done(1)
         
-
 class brsgis_exportCAD(object):
 
     def __init__(self, iface, cV, pV, aeV, veV, hV, sV, rdsV):
@@ -9642,7 +9368,7 @@ class brsgis_exportCAD(object):
           s = sym.symbolLayers()[0]
           s.setColor(QColor("transparent"))
           s.setStrokeColor(QColor('fuchsia'))
-          s.setStrokeWidth(1)
+          # s.setStrokeWidth(1)
 
           mask.setRenderer( QgsSingleSymbolRenderer( sym ) )
           mask.updateExtents()
@@ -9684,28 +9410,8 @@ class brsgis_exportCAD(object):
             year = jobYear
 
         path = os.path.join("Z:\\", "BRS-DEV", year, jobNo)  # need to programattically grab year
-        jipath = os.path.join(path, "Job_Info")
-        dwgpath = os.path.join(path, "dwg")
-        frcpath = os.path.join(path, "From_Others")
+        jobFolders(jobNo)
         gispath = os.path.join(path, "GIS")
-        ppath = os.path.join(path, "prints")
-        supath = os.path.join(path, "survey")
-        rspath = os.path.join(path, "research")
-
-        QgsMessageLog.logMessage('Checking output folder: ' + path + '...', 'BRS_GIS', level=Qgis.Info)
-
-        if not os.path.exists(path):
-            os.makedirs(path)
-            os.makedirs(jipath)
-            os.makedirs(dwgpath)
-            os.makedirs(gispath)
-            os.makedirs(frcpath)
-            os.makedirs(ppath)
-            os.makedirs(supath)
-            os.makedirs(rspath)
-
-        if not os.path.exists(gispath):
-            os.makedirs(gispath)
 
         self.iface.actionCopyFeatures().trigger()
         self.fields = self.iface.activeLayer().fields()
@@ -10109,7 +9815,6 @@ class brsgis_exportCAD(object):
         if self.vl == QgsProject.instance().mapLayersByName('ng911rdss')[0]:
             self.vl.setSubsetString("")
 
-
 class cleanupCAD(object):
 
     def __init__(self, iface):
@@ -10153,7 +9858,6 @@ class cleanupCAD(object):
                 exc_type, exc_obj, exc_tb = sys.exc_info()
                 fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
                 QgsMessageLog.logMessage("File Deletion Error - Details: " + str(exc_type) + ' ' + str(fname) + ' ' + str(exc_tb.tb_lineno) + ' ' + str(e), 'BRS_GIS', level=Qgis.Info)
-
 
 class brsgis_allOutputs(object):
 
